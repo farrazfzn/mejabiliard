@@ -1,0 +1,655 @@
+<html>
+
+<head>
+    <title>
+        Live Table
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #000000, #011b37);
+            color: white;
+            text-align: center;
+        }
+
+        .header {
+            background-color: black;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 3px solid #00CCFF;
+            /* Warna biru muda */
+        }
+
+        .header img {
+            height: 50px;
+        }
+
+        .header .logout {
+            font-size: 18px;
+            margin-right: auto;
+            /* Shifted slightly to the left */
+        }
+
+        .header nav {
+            display: flex;
+            gap: 40px;
+        }
+
+        .header nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+            position: relative;
+            left: -120px;
+            /* Geser elemen 10px ke kiri */
+        }
+
+
+        .content {
+            padding: 80px 20px 20px;
+            /* Adjusted padding to account for fixed header */
+        }
+
+        /* Mengatur body dan html agar memenuhi seluruh halaman */
+
+
+        /* Container untuk carousel */
+        .carousel-container {
+            position: relative;
+            width: 75%;
+            /* Lebar 75% dari halaman */
+            height: 300px;
+            /* Tinggi carousel */
+            overflow: hidden;
+            margin: 0;
+            margin-left: 200px;
+            margin-top: 20px;
+            margin-buttom: 200px;
+        }
+
+        /* Carousel */
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: 100%;
+            /* Menyesuaikan dengan tinggi container */
+        }
+
+        /* Setiap item dalam carousel */
+        .carousel .item {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Gambar dalam carousel */
+        .carousel .item img {
+            width: 100%;
+            height: 100%;
+            /* Menyesuaikan dengan tinggi carousel */
+
+            border-radius: 25px;
+            /* Membuat sudut gambar menjadi bulat */
+        }
+
+
+        .carousel-buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .carousel-container:hover .carousel-buttons {
+            opacity: 1;
+        }
+
+        .carousel-buttons button {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .carousel-dots {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .carousel-dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .carousel-dots .active {
+            background-color: #717171;
+        }
+
+        .live-table {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .live-table .row {
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            margin-bottom: 5px;
+        }
+
+        .live-table .cell {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            width: 250px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+            border: 4px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 30px;
+        }
+
+        .live-table .cell:hover,
+        .live-table .cell.selected {
+            transform: scale(1.1);
+        }
+
+        .live-table .cell.ready {
+            border-color: 00C22D;
+        }
+
+        .live-table .cell.running {
+            border-color: red;
+        }
+
+        .live-table .cell.loss {
+            border-color: red;
+        }
+        .live-table .cell .number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            background-color: white;
+            color: black;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            background-color: black;
+            padding: 10px;
+            margin-top: 20px;
+            /* Added margin to avoid overlapping */
+            border-top: 3px solid #00CCFF;
+            font-size: 6px;
+            /* Warna biru muda */
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+
+        }
+
+        .facilities {
+            text-align: center;
+            /* Pusatkan konten */
+            padding: 20px;
+        }
+
+        .facilities h3 {
+            font-size: 24px;
+            /* Ukuran font untuk judul */
+            margin-bottom: 20px;
+            /* Jarak antara judul dan gambar */
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+        }
+
+        .facilities img {
+            width: 350px;
+            /* Perbesar lebar gambar */
+            height: 150px;
+            /* Perbesar tinggi gambar */
+            border-radius: 25px;
+            /* Buat sudut gambar melengkung */
+            margin: 10px;
+            /* Jarak antar gambar */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Tambahkan bayangan untuk efek lebih menarik */
+            transition: transform 0.8s ease;
+            /* Efek animasi saat hover */
+            object-fit: cover;
+            /* Menjaga proporsi gambar */
+            margin: 20px 20px;
+
+
+        }
+
+        .facilities img:hover {
+            transform: scale(1.4);
+            /* Perbesar gambar sedikit saat di-hover */
+            filter: brightness(1.0);
+            /* Tambahkan sedikit kecerahan */
+
+        }
+
+        .bookingg {
+            background-color: #81A1FF;
+            /* Warna latar belakang biru */
+            color: #050072;
+            /* Warna latar belakang biru */
+            padding: 24px 36px;
+            /* Memberikan padding untuk membuat tombol lebih besar */
+            font-size: 16px;
+            /* Ukuran font */
+            border: none;
+            /* Menghilangkan border default */
+            border-radius: 28px;
+            /* Membulatkan sudut tombol */
+            cursor: pointer;
+            /* Menunjukkan bahwa ini adalah tombol yang dapat diklik */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+            /* Transisi untuk efek hover */
+        }
+
+        .bookingg:active {
+            background-color: #003d7a;
+            /* Warna latar belakang lebih gelap saat tombol ditekan */
+            transform: scale(0.98);
+            /* Efek saat tombol ditekan */
+        }
+
+        .bookingg:hover {
+            background-color: #0056b3;
+            /* Warna lebih gelap saat hover */
+            transform: scale(1.05);
+            /* Membesar sedikit saat hover */
+        }
+
+        /*Untuk Tentang Kami Classnya containerrr*/
+        .containerrr {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .containerrr h1 {
+            font-size: 2em;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+            margin-bottom: 20px;
+            position: relative;
+            color: #fff;
+            animation: shine 2s infinite;
+        }
+
+        /*Tulisan glow*/
+        .glow-text {
+            font-size: 48px;
+            color: white;
+            /* Warna dasar teks */
+            text-align: center;
+            animation: shine 2s infinite;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+        }
+
+        @keyframes shine {
+            0% {
+                text-shadow:
+                    0 0 2px #ccc,
+                    0 0 5px #ccc,
+                    0 0 8px #ccc,
+                    0 0 10px #ccc,
+                    0 0 12px #ccc;
+            }
+
+            100% {
+                text-shadow:
+                    0 0 3px #ccc,
+                    0 0 6px #ccc,
+                    0 0 9px #ccc,
+                    0 0 12px #ccc,
+                    0 0 15px #ccc;
+            }
+        }
+
+
+        .contentt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .contentt img {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+        }
+
+        .text {
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+
+        }
+
+        .text p {
+            margin: 5px 0;
+        }
+
+        .text ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <img alt="Footer Logo" height="50" src="putih.png" width="100" />
+        <nav>
+            <a href="#wo">What' On</a>
+            <a href="#lt">Table</a>
+            <a href="#bok">Booking</a>
+            <a href="#fas">Fasilitas</a>
+            <a href="#abo">About</a>
+    </div>
+    <div id="wo" class="content">
+        <h1 class="glow-text">What's On?</h1>
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="item">
+                    <img alt="Special November Happy Anytime"
+                        src="https://storage.googleapis.com/a1aa/image/YegUprxHKaxoTiJdHufEKlUUEGJJsWkStIsaaWAYeBGYqexPB.jpg" />
+                </div>
+                <div class="item">
+                    <img alt="Promo Kemerdekaan Discount 20%"
+                        src="https://storage.googleapis.com/a1aa/image/yagcXmIfUmXjD6MwwUQqbMrpNlqesNf6P9etjSQhEI1fo6jfE.jpg" />
+                </div>
+                <div class="item">
+                    <img alt="Price List"
+                        src="https://storage.googleapis.com/a1aa/image/ozhRtwkJdyKfVyWKSD1KnmTzpfcAxvyJ0clqQusctzeVqexPB.jpg" />
+                </div>
+            </div>
+            <div class="carousel-buttons">
+                <button id="prev">
+                    &#10094;
+                </button>
+                <button id="next">
+                    &#10095;
+                </button>
+            </div>
+            <div class="carousel-dots">
+                <span class="dot" data-index="0"></span>
+                <span class="dot" data-index="1"></span>
+                <span class="dot" data-index="2"></span>
+            </div>
+        </div>
+        <h1 id="lt" class="glow-text">Live Table</h1>
+        <div class="live-table">
+            <div class="row">
+                <div class="cell ready" id="cell-1">
+                    <div class="number">1</div>
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-5">
+                    <div class="number">5</div>
+                    READY TO PLAY
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell ready" id="cell-2">
+                    <div class="number">2</div>
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-6">
+                    <div class="number">6</div>
+                    READY TO PLAY
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell ready" id="cell-3">
+                    <div class="number">3</div>
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-7">
+                    <div class="number">7</div>
+                    READY TO PLAY
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell ready" id="cell-4">
+                    <div class="number">4</div>
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-8">
+                    <div class="number">8</div>
+                    READY TO PLAY
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="bok" class="booking">
+        <h1 class="glow-text">Takut Kehabisan Meja?</h1>
+        <button class="bookingg" onclick="window.open('https://wa.me/08994408871', '_blank')">
+            Booking Sekarang</button>
+
+    </div>
+    <div id="fas" class="facilities">
+        <h2 class="glow-text">Fasilitas</h2>
+        <img alt="Parking area" height="100"
+            src="https://storage.googleapis.com/a1aa/image/7F29WJgcg8IQHFbbt9d5htfdB58jfRe6GeMm2UqEIONi2C8PB.jpg"
+            width="100" />
+        <img alt="Cafe area" height="100"
+            src="https://storage.googleapis.com/a1aa/image/weO3QL8WOZTOXqe48a9fD9DQoGQXeqxgm6fZZBhB9x8isF4fE.jpg"
+            width="100" />
+        <img alt="Stick storage area" height="100"
+            src="https://storage.googleapis.com/a1aa/image/REDOe6EeKClAR0l025P0afeSAaA0VZuBDX16wuj9dLx32C8PB.jpg"
+            width="100" />
+    </div>
+    <div class="containerrr">
+        <h1>
+            Tentang Kami
+        </h1>
+        <div id="abo" class="contentt">
+            <img alt="Logo of Cavein Pool and Cafe" height="150"
+                src="https://storage.googleapis.com/a1aa/image/NjyrFyo6qhLeTSDA3vHUQXBoQRPe5XafCdUCjanwB7rTPgfPB.jpg"
+                width="150" />
+            <div class="text">
+                <p>
+                    Tempat Nyaman Untuk Mendapatkan pengalaman bermain billiard!
+                </p>
+                <p>
+                    Buka Pukul:
+                </p>
+                <ul>
+                    <li>
+                        12.00 - 02.00
+                    </li>
+                    <li>
+                        13.00 - 02.00 WIB (Khusus Jumat)
+                    </li>
+                </ul>
+                <p>
+                    Jl.Karang Satria No.15, Duren Jaya, Bekasi Timur.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <img alt="Footer Logo" height="50" src="putih.png" width="100" />
+        <div>
+            Copyright 2024 - RADIANT TEAM
+        </div>
+    </div>
+    <script>
+        const carousel = document.querySelector('.carousel');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+        const dots = document.querySelectorAll('.dot');
+        let currentIndex = 0;
+
+        function updateCarousel() {
+            const offset = -currentIndex * 100;
+            carousel.style.transform = `translateX(${offset}%)`;
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[currentIndex].classList.add('active');
+        }
+
+        prevButton.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + carousel.children.length) % carousel.children.length;
+            updateCarousel();
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % carousel.children.length;
+            updateCarousel();
+        });
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                currentIndex = parseInt(dot.getAttribute('data-index'));
+                updateCarousel();
+            });
+        });
+
+        function autoSlide() {
+            currentIndex = (currentIndex + 1) % carousel.children.length;
+            updateCarousel();
+        }
+
+        setInterval(autoSlide, 3000);
+
+        const cells = document.querySelectorAll('.cell');
+        let timers = {};
+
+        function updateCell(cell, remainingTime) {
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+            cell.innerHTML = `${cell.id.split('-')[1]}<br/>${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function startTimer(cell, remainingTime) {
+            const cellId = cell.id;
+            cell.classList.remove('ready');
+            cell.classList.add('running');
+
+            updateCell(cell, remainingTime);
+
+            timers[cellId] = setInterval(() => {
+                remainingTime--;
+                if (remainingTime <= 0) {
+                    clearInterval(timers[cellId]);
+                    delete timers[cellId];
+                    cell.classList.remove('running');
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${cellId.split('-')[1]}<br/>READY TO PLAY`;
+                    localStorage.removeItem(cellId);
+                } else {
+                    updateCell(cell, remainingTime);
+                }
+                localStorage.setItem(cellId, remainingTime);
+            }, 1000);
+        }
+
+        window.addEventListener('load', () => {
+            cells.forEach(cell => {
+                const cellId = cell.id;
+                const timeLeft = localStorage.getItem(cellId);
+                if (timeLeft && timeLeft !== 'ready' && timeLeft !== 'loss') {
+                    startTimer(cell, parseInt(timeLeft));
+                } else if (timeLeft === 'loss') {
+                    cell.classList.add('loss');
+                    cell.innerHTML = `${cellId.split('-')[1]}<br/>LOSS`;
+                } else if (timeLeft === 'ready') {
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${cellId.split('-')[1]}<br/>READY TO PLAY`;
+                }
+            });
+        });
+
+        window.addEventListener('storage', (event) => {
+            if (event.key && event.newValue === null) {
+                const cell = document.getElementById(event.key);
+                if (cell) {
+                    clearInterval(timers[event.key]);
+                    delete timers[event.key];
+                    cell.classList.remove('running');
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${event.key.split('-')[1]}<br/>READY TO PLAY`;
+                }
+            } else if (event.key && event.newValue === 'loss') {
+                const cell = document.getElementById(event.key);
+                if (cell) {
+                    clearInterval(timers[event.key]);
+                    delete timers[event.key];
+                    cell.classList.remove('running');
+                    cell.classList.add('loss');
+                    cell.innerHTML = `${event.key.split('-')[1]}<br/>LOSS`;
+                }
+            } else if (event.key && event.newValue === 'ready') {
+                const cell = document.getElementById(event.key);
+                if (cell) {
+                    clearInterval(timers[event.key]);
+                    delete timers[event.key];
+                    cell.classList.remove('running');
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${event.key.split('-')[1]}<br/>READY TO PLAY`;
+                }
+            } else if (event.key && !isNaN(event.newValue)) {
+                const cell = document.getElementById(event.key);
+                if (cell) {
+                    clearInterval(timers[event.key]);
+                    startTimer(cell, parseInt(event.newValue));
+                }
+            }
+        });
+        // Pilih semua tautan yang memiliki href dimulai dengan #
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault(); // Hentikan perilaku scroll default
+
+                const target = document.querySelector(this.getAttribute('href')); // Temukan elemen tujuan
+
+                window.scrollTo({
+                    top: target.offsetTop - 100, // Sesuaikan -100 dengan tinggi header
+                    behavior: 'smooth' // Scroll halus
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

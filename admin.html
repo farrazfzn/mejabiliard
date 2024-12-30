@@ -1,0 +1,699 @@
+<html>
+
+<head>
+    <title>
+        Live Table
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #000000, #011b37);
+            color: white;
+            text-align: center;
+        }
+
+        .header {
+            background-color: black;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 3px solid #00CCFF;
+            /* Warna biru muda */
+            /* Tambahkan garis bawah */
+
+        }
+
+        .header img {
+            height: 50px;
+        }
+
+
+        .header .logout-img {
+            height: 30px;
+            margin-left: auto;
+            /* Otomatis dorong elemen ini ke kanan */
+        }
+
+        .header .logout-button {
+            font-size: 25px;
+            margin-right: 50px;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            /* Shifted slightly to the left */
+        }
+
+        .header nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .content {
+            padding: 80px 200px 20px;
+            /* Adjusted padding to account for fixed header */
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 75%;
+            /* Lebar 75% dari halaman */
+            height: 300px;
+            /* Tinggi carousel */
+            overflow: hidden;
+            margin: 0;
+            margin-left: 200px;
+            margin-top: 20px;
+            margin-buttom: 200px;
+        }
+
+        /* Carousel */
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: 100%;
+            /* Menyesuaikan dengan tinggi container */
+        }
+
+        /* Setiap item dalam carousel */
+        .carousel .item {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Gambar dalam carousel */
+        .carousel .item img {
+            width: 100%;
+            height: 100%;
+            /* Menyesuaikan dengan tinggi carousel */
+
+            border-radius: 25px;
+            /* Membuat sudut gambar menjadi bulat */
+        }
+
+
+        .carousel-buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .carousel-container:hover .carousel-buttons {
+            opacity: 1;
+        }
+
+        .carousel-buttons button {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .carousel-dots {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .carousel-dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .carousel-dots .active {
+            background-color: #717171;
+        }
+
+        .live-table {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .live-table .row {
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            margin-bottom: px;
+        }
+
+        .live-table .cell {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            width: 250px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            border: 4px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 30px;
+        }
+
+        .live-table .cell:hover,
+        .live-table .cell.selected {
+            transform: scale(1.1);
+        }
+
+        .live-table .cell.ready {
+            border-color: #00C22D;
+        }
+
+        .live-table .cell.running {
+            border-color: red;
+        }
+
+        .live-table .cell.loss {
+            border-color: red;
+        }
+        .live-table .cell .number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            background-color: white;
+            color: black;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .duration {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .duration button {
+            padding: 10px;
+            background-color: #81A1FF;
+            border: none;
+            border-radius: 5px;
+            color: black;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 30px;
+            padding: 5px 10px;
+
+
+        }
+
+        .duration .value {
+            font-size: 40px;
+            width: 90px;
+            text-align: center;
+            border: 2px solid #000;
+            /* Menambahkan border dengan ketebalan 2px dan warna hitam */
+            padding: 10px;
+            /* Menambahkan padding agar elemen tidak terhimpit dengan border */
+            border-radius: 9px;
+            border-color: white;
+            margin-left: 5px;
+            margin-right: 5px;
+
+        }
+
+        .losss {
+            padding: 10px 30px;
+            /* Memperbesar padding untuk tombol */
+            background-color: #B0B0B0;
+            /* Warna latar belakang tombol */
+            border: none;
+            /* Menghilangkan border tombol */
+            border-radius: 30px;
+            /* Membulatkan sudut tombol */
+            color: black;
+            /* Warna teks tombol */
+            cursor: pointer;
+            /* Menunjukkan kursor pointer saat hover */
+            font-size: 30px;
+            /* Memperbesar ukuran font menjadi 30px */
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .controls button {
+            padding: 10px 30px;
+            /* Memperbesar padding untuk tombol */
+            background-color: #81A1FF;
+            /* Warna latar belakang tombol */
+            border: none;
+            /* Menghilangkan border tombol */
+            border-radius: 30px;
+            /* Membulatkan sudut tombol */
+            color: black;
+            /* Warna teks tombol */
+            cursor: pointer;
+            /* Menunjukkan kursor pointer saat hover */
+            font-size: 30px;
+            /* Memperbesar ukuran font menjadi 30px */
+            font-weight: bold;
+            margin-bottom: 30px;
+            margin-top: -20px;
+        }
+
+
+        .controls button.stop {
+            background-color: #81A1FF;
+        }
+
+        .footer {
+            background-color: black;
+            padding: 10px;
+            margin-top: 20px;
+            /* Added margin to avoid overlapping */
+            border-top: 3px solid #00CCFF;
+            /* Warna biru muda */
+            font-size: 6px;
+        }
+
+        /*Tulisan glow*/
+        .glow-text {
+            font-size: 48px;
+            color: white;
+            /* Warna dasar teks */
+            text-align: center;
+            animation: shine 2s infinite;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+        }
+
+        @keyframes shine {
+            0% {
+                text-shadow:
+                    0 0 2px #ccc,
+                    0 0 5px #ccc,
+                    0 0 8px #ccc,
+                    0 0 10px #ccc,
+                    0 0 12px #ccc;
+            }
+
+            100% {
+                text-shadow:
+                    0 0 3px #ccc,
+                    0 0 6px #ccc,
+                    0 0 9px #ccc,
+                    0 0 12px #ccc,
+                    0 0 15px #ccc;
+            }
+        }
+
+        .glow-text2 {
+            font-size: 48px;
+            color: white;
+            /* Warna dasar teks */
+            text-align: center;
+            animation: shine 2s infinite;
+            font-family: 'Inter', sans-serif;
+            /* Menetapkan font Inter */
+        }
+
+        @keyframes shine {
+            0% {
+                text-shadow:
+                    0 0 2px #ccc,
+                    0 0 5px #ccc,
+                    0 0 8px #ccc,
+                    0 0 10px #ccc,
+                    0 0 12px #ccc;
+            }
+
+            100% {
+                text-shadow:
+                    0 0 3px #ccc,
+                    0 0 6px #ccc,
+                    0 0 9px #ccc,
+                    0 0 12px #ccc,
+                    0 0 15px #ccc;
+            }
+        }
+        .cell.ready {
+            text-align: center;
+        }
+
+        .angka-bulat {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #828282;
+            font-weight: bold;
+            margin-bottom: -5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <img alt="Footer Logo" height="50" src="putih.png" width="100" />
+        <nav>
+            <a href="logout.php">
+                <img alt="Keluar" src="logout.png" class="logout-img" />
+            </a>
+            <a href="logout.php" class="logout-button">LOGOUT</a>
+
+
+    </div>
+    <div class="content">
+        <h1 class="glow-text">What's On</h1>
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="item">
+                    <img alt="Special November Happy Anytime" src="p.jpg" />
+                    <button>
+                        Ganti Gambar
+                    </button>
+                    <button class="delete">
+                        Hapus
+                    </button>
+                </div>
+                <div class="item">
+                    <img alt="Special November Happy Anytime" src="w.jpg" />
+                    <button>
+                        Ganti Gambar
+                    </button>
+                    <button class="delete">
+                        Hapus
+                    </button>
+                </div>
+                <div class="item">
+                    <img alt="Special November Happy Anytime" src="p.jpg" />
+                    <button>
+                        Ganti Gambar
+                    </button>
+                    <button class="delete">
+                        Hapus
+                    </button>
+                </div>
+            </div>
+            <div class="carousel-buttons">
+                <button id="prev">
+                    &#10094;
+                </button>
+                <button id="next">
+                    &#10095;
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="live-table">
+        <h1 class="glow-text2">Live Table</h1>
+        <div class="row">
+        <div class="cell ready" id="cell-1">
+                    <span class="angka-bulat">1</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-5">
+                    <span class="angka-bulat">5</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell ready" id="cell-2">
+                    <span class="angka-bulat">2</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-6">
+                    <span class="angka-bulat">6</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell ready" id="cell-3">
+                    <span class="angka-bulat">3</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-7">
+                    <span class="angka-bulat">7</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell ready" id="cell-4">
+                    <span class="angka-bulat">4</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+                <div class="cell ready" id="cell-8">
+                    <span class="angka-bulat">8</span>
+                    <br />
+                    READY TO PLAY
+                </div>
+            </div>
+        </div>
+    <h3>Durasi Waktu (Jam)</h3>
+    <div class="duration">
+
+        <button id="decrease">
+            -
+        </button>
+        <div class="value" id="duration-value">
+            1
+        </div>
+        <button id="increase">
+            +
+        </button>
+    </div>
+    <button class="losss" id="loss">Loss
+    </button>
+    <div class="controls">
+        <button class="stop" id="stop">
+            Stop
+        </button>
+        <button id="start">
+            Start
+        </button>
+    </div>
+    <div class="footer">
+        <img alt="Footer Logo" height="50" src="putih.png" width="100" />
+        <div>
+            Copyright 2024 - RADIANT TEAM
+        </div>
+    </div>
+    <script>
+        const carousel = document.querySelector('.carousel');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+        const dots = document.querySelectorAll('.dot');
+        let currentIndex = 0;
+
+        function updateCarousel() {
+            const offset = -currentIndex * 100;
+            carousel.style.transform = `translateX(${offset}%)`;
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[currentIndex].classList.add('active');
+        }
+
+        prevButton.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + carousel.children.length) % carousel.children.length;
+            updateCarousel();
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % carousel.children.length;
+            updateCarousel();
+        });
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                currentIndex = parseInt(dot.getAttribute('data-index'));
+                updateCarousel();
+            });
+        });
+
+        function autoSlide() {
+            currentIndex = (currentIndex + 1) % carousel.children.length;
+            updateCarousel();
+        }
+
+        setInterval(autoSlide, 3000);
+
+        const cells = document.querySelectorAll('.cell');
+        let timers = {};
+        let selectedCell = null;
+        let duration = 1;
+
+        function updateCell(cell, remainingTime) {
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+            cell.innerHTML = `${cell.id.split('-')[1]}<br/>${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function startTimer(cell, remainingTime) {
+            const cellId = cell.id;
+            cell.classList.remove('ready');
+            cell.classList.add('running');
+
+            updateCell(cell, remainingTime);
+
+            timers[cellId] = setInterval(() => {
+                remainingTime--;
+                if (remainingTime <= 0) {
+                    clearInterval(timers[cellId]);
+                    delete timers[cellId];
+                    cell.classList.remove('running');
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${cellId.split('-')[1]}<br/>READY TO PLAY`;
+                    localStorage.removeItem(cellId);
+                } else {
+                    updateCell(cell, remainingTime);
+                }
+                localStorage.setItem(cellId, remainingTime);
+            }, 1000);
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                if (selectedCell) {
+                    selectedCell.classList.remove('selected');
+                }
+                selectedCell = cell;
+                cell.classList.add('selected');
+            });
+        });
+
+        document.getElementById('start').addEventListener('click', () => {
+            if (!selectedCell) return;
+
+            const cellId = selectedCell.id;
+            if (timers[cellId]) return;
+
+            selectedCell.classList.remove('ready');
+            selectedCell.classList.add('running');
+            let timeLeft = duration * 60 * 60; // convert hours to seconds
+
+            startTimer(selectedCell, timeLeft);
+
+            selectedCell.classList.remove('selected');
+            selectedCell = null;
+        });
+
+        document.getElementById('stop').addEventListener('click', () => {
+            if (!selectedCell) return;
+
+            const cellId = selectedCell.id;
+            if (!timers[cellId]) {
+                selectedCell.classList.remove('loss');
+                selectedCell.classList.add('ready');
+                selectedCell.innerHTML = `${cellId.split('-')[1]}<br/>READY TO PLAY`;
+                localStorage.setItem(cellId, 'ready');
+                selectedCell.classList.remove('selected');
+                selectedCell = null;
+                return;
+            }
+
+            clearInterval(timers[cellId]);
+            delete timers[cellId];
+            selectedCell.classList.remove('running');
+            selectedCell.classList.add('ready');
+            selectedCell.innerHTML = `${cellId.split('-')[1]}<br/>READY TO PLAY`;
+            localStorage.setItem(cellId, 'ready');
+
+            selectedCell.classList.remove('selected');
+            selectedCell = null;
+        });
+
+        document.getElementById('loss').addEventListener('click', () => {
+            if (!selectedCell) return;
+
+            const cellId = selectedCell.id;
+            if (timers[cellId]) {
+                clearInterval(timers[cellId]);
+                delete timers[cellId];
+            }
+            selectedCell.classList.remove('running');
+            selectedCell.classList.add('loss');
+            selectedCell.innerHTML = `${cellId.split('-')[1]}<br/>LOSS`;
+            localStorage.setItem(cellId, 'loss');
+
+            selectedCell.classList.remove('selected');
+            selectedCell = null;
+        });
+
+        document.getElementById('decrease').addEventListener('click', () => {
+            if (duration > 1) {
+                duration--;
+                document.getElementById('duration-value').textContent = duration;
+            }
+        });
+
+        document.getElementById('increase').addEventListener('click', () => {
+            duration++;
+            document.getElementById('duration-value').textContent = duration;
+        });
+
+        window.addEventListener('load', () => {
+            cells.forEach(cell => {
+                const cellId = cell.id;
+                const timeLeft = localStorage.getItem(cellId);
+                if (timeLeft && timeLeft !== 'ready' && timeLeft !== 'loss') {
+                    startTimer(cell, parseInt(timeLeft));
+                } else if (timeLeft === 'loss') {
+                    cell.classList.add('loss');
+                    cell.innerHTML = `${cellId.split('-')[1]}<br/>LOSS`;
+                } else if (timeLeft === 'ready') {
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${cellId.split('-')[1]}<br/>READY TO PLAY`;
+                }
+            });
+        });
+
+        window.addEventListener('storage', (event) => {
+            if (event.key && event.newValue === null) {
+                const cell = document.getElementById(event.key);
+                if (cell) {
+                    clearInterval(timers[event.key]);
+                    delete timers[event.key];
+                    cell.classList.remove('running');
+                    cell.classList.add('ready');
+                    cell.innerHTML = `${event.key.split('-')[1]}<br/>READY TO PLAY`;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
