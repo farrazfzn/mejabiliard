@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Test</title>
+</head>
+<body>
+    <h1>Timer Test</h1>
+    <p id="timer">Countdown: 600</p>
+    <script>
+        let counter = 600;
+        const timer = setInterval(() => {
+            document.getElementById('timer').innerText = `Countdown: ${counter}`;
+            counter--;
+            if (counter < 0) {
+                clearInterval(timer);
+                alert('Timer selesai!');
+            }
+        }, 1000); // Timer berjalan setiap 1 detik
+    </script>
+</body>
+</html>
